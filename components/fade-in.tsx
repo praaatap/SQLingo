@@ -59,7 +59,7 @@ export function FadeIn({ children, className, delay = 0, direction = "up" }: Fad
             ref={ref}
             className={cn(
                 "transition-all duration-1000 ease-out",
-                isVisible ? "opacity-100 translate-y-0 translate-x-0 blur-0" : `opacity-0 blur-sm ${getDirectionClass()}`,
+                isVisible ? "opacity-100 translate-y-0 translate-x-0" : `opacity-0 ${getDirectionClass()}`,
                 className
             )}
             style={{ transitionDelay: `${delay}ms` }}

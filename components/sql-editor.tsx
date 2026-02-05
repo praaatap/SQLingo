@@ -1,48 +1,93 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import Editor, { type OnMount, type Monaco } from "@monaco-editor/react"
-import type { editor } from "monaco-editor"
+import type { editor, languages } from "monaco-editor"
+import { SQL_SNIPPETS } from "@/lib/sql-snippets"
+
+export interface SqlEditorRef {
+  format: () => void
+}
 
 interface SqlEditorProps {
   value: string
   onChange: (value: string) => void
   onRun?: () => void
+  schema?: { name: string; columns: { name: string; type: string; pk: boolean }[] }[]
 }
 
-export function SqlEditor({ value, onChange, onRun }: SqlEditorProps) {
+export const SqlEditor = forwardRef<SqlEditorRef, SqlEditorProps>(({ value, onChange, onRun, schema }, ref) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
+  const completionProviderRef = useRef<IDisposable | null>(null)
+  const schemaRef = useRef(schema)
+
+  // Update schema ref when schema changes
+  useEffect(() => {
+    schemaRef.current = schema
+  }, [schema])
+
+  useImperativeHandle(ref, () => ({
+    format: () => {
+      editorRef.current?.getAction("editor.action.formatDocument")?.run()
+    },
+  }))
 
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor
     monacoRef.current = monaco
 
-    // Define custom dark theme matching our app
-    monaco.editor.defineTheme("sql-dark", {
-      base: "vs-dark",
-      inherit: true,
-      rules: [
-        { token: "keyword", foreground: "3dd68c", fontStyle: "bold" },
-        { token: "string", foreground: "fbbf24" },
-        { token: "number", foreground: "60a5fa" },
-        { token: "comment", foreground: "6b7280", fontStyle: "italic" },
-        { token: "operator", foreground: "f472b6" },
-        { token: "identifier", foreground: "e5e7eb" },
-      ],
-      colors: {
-        "editor.background": "#0f1117",
-        "editor.foreground": "#e5e7eb",
-        "editor.lineHighlightBackground": "#1f2937",
-        "editor.selectionBackground": "#3dd68c30",
-        "editorCursor.foreground": "#3dd68c",
-        "editorLineNumber.foreground": "#6b7280",
-        "editorLineNumber.activeForeground": "#e5e7eb",
-        "editor.inactiveSelectionBackground": "#3dd68c20",
-      },
-    })
+    // Use default VS Code dark theme
+    monaco.editor.setTheme("vs-dark")
 
-    monaco.editor.setTheme("sql-dark")
+    // Register completion provider for SQL
+    if (!completionProviderRef.current) {
+      completionProviderRef.current = monaco.languages.registerCompletionItemProvider("sql", {
+        provideCompletionItems: (model: editor.ITextModel, position: any) => {
+          const word = model.getWordUntilPosition(position);
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          };
+
+          const suggestions: languages.CompletionItem[] = [
+            // Add fixed snippets
+            ...SQL_SNIPPETS.map(snippet => ({
+              label: snippet.label,
+              kind: monaco.languages.CompletionItemKind.Snippet,
+              insertText: snippet.insertText,
+              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+              detail: snippet.detail,
+              range: range,
+            })),
+
+            // Add table names
+            ...(schemaRef.current || []).map(table => ({
+              label: table.name,
+              kind: monaco.languages.CompletionItemKind.Class,
+              insertText: table.name,
+              detail: 'Table',
+              range: range,
+            })),
+
+            // Add column names
+            ...(schemaRef.current || []).flatMap(table =>
+              table.columns.map(col => ({
+                label: col.name,
+                kind: monaco.languages.CompletionItemKind.Field,
+                insertText: col.name,
+                detail: `Column (${table.name})`,
+                range: range,
+              }))
+            )
+          ];
+
+          return { suggestions };
+        },
+      });
+    }
 
     // Add keyboard shortcut for running query
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
@@ -52,6 +97,16 @@ export function SqlEditor({ value, onChange, onRun }: SqlEditorProps) {
     // Focus editor
     editor.focus()
   }
+
+  // Effect to clean up completion provider
+  useEffect(() => {
+    return () => {
+      if (completionProviderRef.current) {
+        completionProviderRef.current.dispose();
+        completionProviderRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (editorRef.current && monacoRef.current) {
@@ -88,9 +143,24 @@ export function SqlEditor({ value, onChange, onRun }: SqlEditorProps) {
           smoothScrolling: true,
           bracketPairColorization: { enabled: true },
           scrollbar: {
-            verticalScrollbarSize: 8,
-            horizontalScrollbarSize: 8,
+            verticalScrollbarSize: 10,
+            horizontalScrollbarSize: 10,
           },
+          // Mobile improvements
+          mouseWheelZoom: true,
+          contextmenu: true,
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: true
+          },
+          suggestOnTriggerCharacters: true,
+          acceptSuggestionOnEnter: "on",
+          tabCompletion: "on",
+          wordBasedSuggestions: "allDocuments",
+          parameterHints: {
+            enabled: true
+          }
         }}
         loading={
           <div className="flex items-center justify-center h-full bg-background">
@@ -100,4 +170,11 @@ export function SqlEditor({ value, onChange, onRun }: SqlEditorProps) {
       />
     </div>
   )
+})
+
+SqlEditor.displayName = "SqlEditor"
+
+// Type for monaco disposable (optional, for better TS support if needed)
+interface IDisposable {
+  dispose(): void;
 }

@@ -96,14 +96,14 @@ export function ProblemsList() {
       {/* Enhanced Header with Gradient */}
       <header className="relative border-b border-border overflow-hidden">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-blue-500/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-blue-500/5" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -translate-y-1/2" />
 
-        <div className="relative max-w-6xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="relative max-w-6xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg shadow-primary/25">
+                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg shadow-primary/25">
                   <Database className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
@@ -113,20 +113,19 @@ export function ProblemsList() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* AI Feature Badge */}
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              {/* AI Feature Badge - Hidden on small mobile */}
+              <div className="hidden xs:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">AI-Powered Hints</span>
+                <span className="text-xs sm:text-sm font-medium text-primary">AI Hints</span>
               </div>
 
               {/* Progress Badge */}
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-success/10 border border-success/20 backdrop-blur-sm">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20 backdrop-blur-sm">
                 <Trophy className="h-4 w-4 text-success" />
-                <span className="text-sm font-semibold text-success">
+                <span className="text-xs sm:text-sm font-semibold text-success">
                   {stats.solved}/{stats.total}
                 </span>
-                <span className="text-xs text-success/80">solved</span>
               </div>
             </div>
           </div>
@@ -172,7 +171,7 @@ export function ProblemsList() {
 
         {/* Quick Start Banner */}
         {stats.solved === 0 && (
-          <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-background to-blue-500/10 border border-primary/20 backdrop-blur-sm">
+          <div className="mb-8 p-6 rounded-2xl bg-linear-to-r from-primary/10 via-background to-blue-500/10 border border-primary/20 backdrop-blur-sm">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -199,57 +198,55 @@ export function ProblemsList() {
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search problems by title, tag, or number..."
+              placeholder="Search problems..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              className="pl-12 h-12 bg-card text-base"
+              className="pl-12 h-12 bg-card text-base w-full"
             />
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Difficulty:</span>
-              <div className="flex items-center gap-1">
-                {(["all", "Easy", "Medium", "Hard"] as const).map((diff) => (
-                  <Button
-                    key={diff}
-                    variant={difficultyFilter === diff ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => handleFilterChange(diff, "difficulty")}
-                    className={cn(
-                      "h-8",
-                      difficultyFilter === diff &&
-                      diff === "Easy" &&
-                      "bg-success text-success-foreground hover:bg-success/90",
-                      difficultyFilter === diff &&
-                      diff === "Medium" &&
-                      "bg-warning text-warning-foreground hover:bg-warning/90",
-                      difficultyFilter === diff &&
-                      diff === "Hard" &&
-                      "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    )}
-                  >
-                    {diff === "all" ? "All" : diff}
-                  </Button>
-                ))}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-[200px] sm:max-w-none">
+                  {(["all", "Easy", "Medium", "Hard"] as const).map((diff) => (
+                    <Button
+                      key={diff}
+                      variant={difficultyFilter === diff ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => handleFilterChange(diff, "difficulty")}
+                      className={cn(
+                        "h-8 px-2",
+                        difficultyFilter === diff &&
+                        diff === "Easy" &&
+                        "bg-success text-success-foreground hover:bg-success/90",
+                        difficultyFilter === diff &&
+                        diff === "Medium" &&
+                        "bg-warning text-warning-foreground hover:bg-warning/90",
+                        difficultyFilter === diff &&
+                        diff === "Hard" &&
+                        "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      )}
+                    >
+                      {diff === "all" ? "All" : diff}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 overflow-x-auto pb-1">
                 {(["all", "solved", "unsolved"] as const).map((status) => (
                   <Button
                     key={status}
                     variant={statusFilter === status ? "default" : "ghost"}
                     size="sm"
                     onClick={() => handleFilterChange(status, "status")}
-                    className="h-8 capitalize"
+                    className="h-8 px-2 capitalize"
                   >
                     {status}
                   </Button>
@@ -257,126 +254,170 @@ export function ProblemsList() {
               </div>
             </div>
 
-            <div className="ml-auto text-sm text-muted-foreground">
-              {filteredQuestions.length} problems found
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              {filteredQuestions.length} problems
             </div>
           </div>
         </div>
 
-        {/* Problems Table */}
-        <div className="border border-border rounded-xl overflow-hidden bg-card">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-secondary/30">
-                  <th className="w-14 px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    #
-                  </th>
-                  <th className="w-14 px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">
-                    Tags
-                  </th>
-                  <th className="w-28 px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Difficulty
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {paginatedQuestions.map((question) => (
-                  <ProblemRow
-                    key={question.id}
-                    question={question}
-                    solved={progress[question.id]?.solved || false}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredQuestions.length === 0 && (
-            <div className="px-4 py-16 text-center">
-              <Database className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">No problems found matching your criteria</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-4"
-                onClick={() => {
-                  setSearchQuery("")
-                  setDifficultyFilter("all")
-                  setStatusFilter("all")
-                }}
+        {/* Problems View (Cards on mobile, Table on desktop) */}
+        <div className="space-y-4">
+          {/* Mobile Cards View */}
+          <div className="grid grid-cols-1 gap-3 md:hidden">
+            {paginatedQuestions.map((question) => (
+              <Link
+                key={question.id}
+                href={`/problems/${question.id}`}
+                className="block bg-card border border-border rounded-xl p-4 active:bg-secondary/20 transition-colors"
               >
-                Clear filters
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-sm text-muted-foreground">
-              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-              {Math.min(currentPage * ITEMS_PER_PAGE, filteredQuestions.length)} of{" "}
-              {filteredQuestions.length}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="bg-transparent"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum: number
-                  if (totalPages <= 5) {
-                    pageNum = i + 1
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i
-                  } else {
-                    pageNum = currentPage - 2 + i
-                  }
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setCurrentPage(pageNum)}
-                      className="w-9"
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-mono text-muted-foreground">#{question.id}</span>
+                  <div className="flex items-center gap-2">
+                    <DifficultyBadge difficulty={question.difficulty} />
+                    {progress[question.id]?.solved ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/30" />
+                    )}
+                  </div>
+                </div>
+                <h3 className="font-semibold text-foreground mb-3">{question.title}</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {question.tags.slice(0, 3).map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 text-[10px] bg-secondary text-secondary-foreground rounded font-mono"
                     >
-                      {pageNum}
-                    </Button>
-                  )
-                })}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="bg-transparent"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+                      {tag}
+                    </span>
+                  ))}
+                  {question.tags.length > 3 && (
+                    <span className="text-[10px] text-muted-foreground">
+                      +{question.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block border border-border rounded-xl overflow-hidden bg-card">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-secondary/30">
+                    <th className="w-14 px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      #
+                    </th>
+                    <th className="w-14 px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">
+                      Tags
+                    </th>
+                    <th className="w-28 px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Difficulty
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {paginatedQuestions.map((question) => (
+                    <ProblemRow
+                      key={question.id}
+                      question={question}
+                      solved={progress[question.id]?.solved || false}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </div>
+        </div>
+
+        {filteredQuestions.length === 0 && (
+          <div className="px-4 py-16 text-center">
+            <Database className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground">No problems found matching your criteria</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-4"
+              onClick={() => {
+                setSearchQuery("")
+                setDifficultyFilter("all")
+                setStatusFilter("all")
+              }}
+            >
+              Clear filters
+            </Button>
           </div>
         )}
-      </main>
-    </div>
+
+        {/* Pagination */}
+        {
+          totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min(currentPage * ITEMS_PER_PAGE, filteredQuestions.length)} of{" "}
+                {filteredQuestions.length}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="bg-transparent"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number
+                    if (totalPages <= 5) {
+                      pageNum = i + 1
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i
+                    } else {
+                      pageNum = currentPage - 2 + i
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="w-9"
+                      >
+                        {pageNum}
+                      </Button>
+                    )
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="bg-transparent"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )
+        }
+      </main >
+    </div >
   )
 }
 
@@ -404,7 +445,7 @@ function StatCard({
     )}>
       {/* Gradient background */}
       {gradient && (
-        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50", gradient)} />
+        <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", gradient)} />
       )}
 
       <div className="relative">

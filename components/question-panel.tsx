@@ -36,7 +36,7 @@ export function QuestionPanel({
   return (
     <div className="flex flex-col h-full bg-card">
       {/* Header */}
-      <div className="px-4 py-4 border-b border-border bg-gradient-to-b from-card to-transparent">
+      <div className="px-4 py-4 border-b border-border bg-linear-to-b from-card to-transparent">
         <div className="flex items-center justify-between mb-3">
           <Link
             href="/problems"
@@ -64,7 +64,7 @@ export function QuestionPanel({
         </div>
 
         <div className="flex items-start gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold text-lg shrink-0">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-linear-to-br from-primary/20 to-primary/5 text-primary font-bold text-lg shrink-0 border border-primary/20 shadow-[0_0_10px_rgba(var(--primary),0.2)]">
             {question.id}
           </div>
           <div className="flex-1 min-w-0">
@@ -107,17 +107,27 @@ export function QuestionPanel({
                   </code>
                 ),
                 table: ({ children }) => (
-                  <div className="overflow-x-auto my-3 rounded-lg border border-border">
-                    <table className="w-full text-sm">{children}</table>
+                  <div className="overflow-hidden my-4 rounded-lg border border-border shadow-sm">
+                    <table className="w-full text-sm border-collapse">{children}</table>
                   </div>
                 ),
+                thead: ({ children }) => (
+                  <thead className="bg-secondary/50 text-xs uppercase font-semibold text-muted-foreground tracking-wider">
+                    {children}
+                  </thead>
+                ),
+                tr: ({ children }) => (
+                  <tr className="border-b border-border/50 last:border-0 hover:bg-secondary/20 transition-colors">
+                    {children}
+                  </tr>
+                ),
                 th: ({ children }) => (
-                  <th className="px-3 py-2 text-left font-medium text-foreground bg-secondary/50 border-b border-border text-xs">
+                  <th className="px-4 py-3 text-left font-medium text-foreground border-b border-border whitespace-nowrap">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="px-3 py-2 text-foreground/80 border-b border-border/50 font-mono text-xs">
+                  <td className="px-4 py-2.5 text-foreground/90 font-mono text-xs">
                     {children}
                   </td>
                 ),

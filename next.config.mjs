@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  outputFileTracingRoot: process.cwd(),
   // Turbopack configuration (Next.js 16 default bundler)
   turbopack: {
     resolveAlias: {

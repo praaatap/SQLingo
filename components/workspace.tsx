@@ -1,17 +1,18 @@
 "use client"
 
-import { useState, useCallback, useEffect, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
 import { useSql, type ExecutionResult, type QueryResult } from "@/hooks/use-sql"
 import { useWorkspaceStore } from "@/lib/workspace-store"
 import { validateResults } from "@/lib/validation"
 import { SchemaExplorer } from "@/components/schema-explorer"
-import { SqlEditor } from "@/components/sql-editor"
+import { SqlEditor, type SqlEditorRef } from "@/components/sql-editor"
 import { EditorToolbar } from "@/components/editor-toolbar"
 import { OutputPanel } from "@/components/output-panel"
 import { QuestionPanel } from "@/components/question-panel"
 import { ResizablePanel } from "@/components/resizable-panel"
 import { getNextQuestion, getPreviousQuestion, type Question } from "@/lib/questions"
+import { useIsMobile } from "@/hooks/use-mobile"
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -21,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
+  FileText,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -62,6 +64,14 @@ export function Workspace({ question }: WorkspaceProps) {
   const progress = getProgress(question.id)
   const prevQuestion = getPreviousQuestion(question.id)
   const nextQuestion = getNextQuestion(question.id)
+
+  const isMobile = useIsMobile()
+  const [mobileView, setMobileView] = useState<"problem" | "editor" | "schema">("editor")
+  const editorRef = useRef<SqlEditorRef>(null)
+
+  const handleFormat = useCallback(() => {
+    editorRef.current?.format()
+  }, [])
 
   // Initialize query text on mount or question change
   useEffect(() => {
@@ -196,8 +206,11 @@ export function Workspace({ question }: WorkspaceProps) {
   const handleTableClick = useCallback(
     (tableName: string) => {
       setQueryText(`SELECT * FROM ${tableName};`)
+      if (isMobile) {
+        setMobileView("editor")
+      }
     },
-    [setQueryText]
+    [setQueryText, isMobile]
   )
 
   // Keyboard shortcuts
@@ -216,6 +229,119 @@ export function Workspace({ question }: WorkspaceProps) {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card">
+          <div className="flex items-center gap-2 max-w-[70%]">
+            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Home className="h-4 w-4" />
+            </Link>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium text-foreground truncate text-sm">
+              #{question.id} {question.title}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <DifficultyBadge difficulty={question.difficulty} />
+          </div>
+        </div>
+
+        {/* Mobile Content Area */}
+        <div className="flex-1 overflow-hidden relative">
+          {mobileView === "problem" && (
+            <div className="absolute inset-0 z-10 bg-background overflow-y-auto">
+              <QuestionPanel
+                question={question}
+                hintsUnlocked={hintsUnlocked}
+                attempts={progress?.attempts || 0}
+                prevQuestionId={prevQuestion?.id}
+                nextQuestionId={nextQuestion?.id}
+              />
+            </div>
+          )}
+
+          {mobileView === "schema" && (
+            <div className="absolute inset-0 z-10 bg-background overflow-y-auto">
+              <SchemaExplorer schema={schema} onTableClick={handleTableClick} isLoading={dbLoading} />
+            </div>
+          )}
+
+          <div className={cn("flex flex-col h-full", mobileView !== "editor" && "hidden")}>
+            <EditorToolbar
+              onRun={handleRun}
+              onSubmit={handleSubmit}
+              onResetQuery={handleResetQuery}
+              onResetDb={handleResetDb}
+              isRunning={isRunning}
+              isSubmitting={isSubmitting}
+              isDbLoading={dbLoading}
+              schemaOpen={false}
+              onToggleSchema={() => setMobileView("schema")}
+              onFormat={handleFormat}
+              questionTitle={question.title}
+              questionDescription={question.description}
+              schema={schema}
+              currentQuery={queryText}
+              errorMessage={executionResult?.error || undefined}
+            />
+            <div className="flex-1 relative">
+              <SqlEditor
+                ref={editorRef}
+                value={queryText}
+                onChange={setQueryText}
+                onRun={handleRun}
+                schema={schema}
+              />
+            </div>
+            {/* Mobile bottom panel for output */}
+            <div className="h-[40%] border-t border-border">
+              <OutputPanel
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                result={executionResult?.result || null}
+                error={executionResult?.error || null}
+                executionTime={executionResult?.executionTime || 0}
+                rowCount={executionResult?.rowCount || 0}
+                submitStatus={submitStatus}
+                validationResult={validationResult}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Bar */}
+        <div className="flex items-center justify-around border-t border-border bg-card p-1 pb-safe">
+          <Button
+            variant={mobileView === "problem" ? "secondary" : "ghost"}
+            className="flex flex-col items-center gap-1 h-auto py-2 px-1 flex-1 rounded-none data-[state=active]:border-t-2 border-primary"
+            onClick={() => setMobileView("problem")}
+          >
+            <FileText className="h-4 w-4" />
+            <span className="text-[10px]">Problem</span>
+          </Button>
+          <Button
+            variant={mobileView === "editor" ? "secondary" : "ghost"}
+            className="flex flex-col items-center gap-1 h-auto py-2 px-1 flex-1"
+            onClick={() => setMobileView("editor")}
+          >
+            <code className="h-4 w-4 font-bold">{"<>"}</code>
+            <span className="text-[10px]">Code</span>
+          </Button>
+          <Button
+            variant={mobileView === "schema" ? "secondary" : "ghost"}
+            className="flex flex-col items-center gap-1 h-auto py-2 px-1 flex-1"
+            onClick={() => setMobileView("schema")}
+          >
+            <Database className="h-4 w-4" />
+            <span className="text-[10px]">Schema</span>
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
@@ -325,6 +451,7 @@ export function Workspace({ question }: WorkspaceProps) {
               isDbLoading={dbLoading}
               schemaOpen={schemaOpen}
               onToggleSchema={() => setSchemaOpen(!schemaOpen)}
+              onFormat={handleFormat}
               questionTitle={question.title}
               questionDescription={question.description}
               schema={schema}
@@ -334,7 +461,13 @@ export function Workspace({ question }: WorkspaceProps) {
 
             {/* Editor */}
             <div className="flex-1 min-h-0">
-              <SqlEditor value={queryText} onChange={setQueryText} onRun={handleRun} />
+              <SqlEditor
+                ref={editorRef}
+                value={queryText}
+                onChange={setQueryText}
+                onRun={handleRun}
+                schema={schema}
+              />
             </div>
 
             {/* Output Panel */}

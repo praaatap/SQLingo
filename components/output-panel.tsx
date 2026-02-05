@@ -41,7 +41,7 @@ export function OutputPanel({
   return (
     <div className="flex flex-col h-full bg-card border-t border-border">
       {/* Tabs */}
-      <div className="flex items-center gap-1 px-3 py-2 border-b border-border bg-card/80">
+      <div className="flex items-center gap-1 px-3 py-2 border-b border-border bg-linear-to-b from-card to-transparent">
         <TabButton
           icon={Table2}
           active={activeTab === "results"}
@@ -125,12 +125,26 @@ function TabButton({
   )
 }
 
+
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState,
+} from "@tanstack/react-table"
+import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+
 function ResultsTab({ result, rowCount }: { result: QueryResult | null; rowCount: number }) {
+  const [sorting, setSorting] = React.useState<SortingState>([])
+
   if (!result) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
-        <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
-          <Table2 className="h-8 w-8 text-muted-foreground/50" />
+        <div className="w-16 h-16 rounded-full bg-secondary/30 border border-white/5 flex items-center justify-center mb-4 shadow-inner">
+          <Table2 className="h-8 w-8 text-muted-foreground/30" />
         </div>
         <p className="text-sm font-medium">No results yet</p>
         <p className="text-xs text-muted-foreground/70 mt-1">Run a query to see results</p>
@@ -141,7 +155,7 @@ function ResultsTab({ result, rowCount }: { result: QueryResult | null; rowCount
   if (result.columns.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
-        <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-full bg-success/10 border border-success/20 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(var(--success),0.2)]">
           <CheckCircle className="h-8 w-8 text-success" />
         </div>
         <p className="text-sm font-medium text-foreground">Query executed successfully</p>
@@ -150,56 +164,121 @@ function ResultsTab({ result, rowCount }: { result: QueryResult | null; rowCount
     )
   }
 
-  const displayRows = result.values.slice(0, 200)
-  const hasMore = result.values.length > 200
+  // Memoize data and columns
+  const columns = React.useMemo(() => {
+    return result.columns.map((col, idx) => ({
+      accessorFn: (row: any[]) => row[idx],
+      id: col,
+      header: col,
+      cell: (info: any) => {
+        const val = info.getValue()
+        return val === null ? <span className="text-muted-foreground/50 italic">NULL</span> : String(val)
+      }
+    }))
+  }, [result.columns])
+
+  const data = React.useMemo(() => result.values, [result.values])
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 50,
+      },
+    }
+  })
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="flex flex-col h-full bg-card">
+      <div className="flex items-center justify-between p-3 border-b border-border bg-card">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Table2 className="h-4 w-4" />
-          <span>
-            {rowCount} row{rowCount !== 1 ? "s" : ""} returned
-          </span>
+          <span>{rowCount} row{rowCount !== 1 ? "s" : ""} returned</span>
         </div>
-        {hasMore && (
-          <span className="text-xs text-warning bg-warning/10 px-2 py-1 rounded">
-            Showing first 200 rows
-          </span>
-        )}
+
+        {/* Pagination Controls */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center text-xs text-muted-foreground mr-2">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </button>
+            <button
+              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <button
+              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="overflow-auto max-h-[400px] rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-secondary">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium text-muted-foreground border-b border-border text-xs w-10">
-                #
-              </th>
-              {result.columns.map((col, idx) => (
-                <th
-                  key={`header-${col}-${idx}`}
-                  className="px-4 py-2 text-left font-medium text-foreground border-b border-border whitespace-nowrap"
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
+      <div className="flex-1 overflow-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead className="sticky top-0 bg-secondary/80 backdrop-blur-sm z-10 shadow-sm">
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                {/* Row Number Header */}
+                <th className="w-12 px-3 py-2 text-left font-medium text-muted-foreground border-b border-border text-xs bg-secondary/80">#</th>
+
+                {headerGroup.headers.map(header => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-2 text-left font-medium text-foreground border-b border-border whitespace-nowrap cursor-pointer select-none hover:bg-secondary transition-colors group"
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    <div className="flex items-center gap-2">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      <span className="text-muted-foreground/50 group-hover:text-foreground transition-colors">
+                        {{
+                          asc: <ChevronUp className="h-3 w-3" />,
+                          desc: <ChevronDown className="h-3 w-3" />,
+                        }[header.column.getIsSorted() as string] ?? <ChevronsUpDown className="h-3 w-3 opacity-0 group-hover:opacity-50" />}
+                      </span>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {displayRows.map((row, rowIdx) => (
-              <tr key={`row-${rowIdx}`} className="border-b border-border/50 hover:bg-secondary/30">
-                <td className="px-3 py-2 text-muted-foreground text-xs">{rowIdx + 1}</td>
-                {row.map((cell, cellIdx) => (
-                  <td
-                    key={`cell-${rowIdx}-${cellIdx}`}
-                    className="px-4 py-2 text-foreground whitespace-nowrap font-mono text-xs"
-                  >
-                    {cell === null ? (
-                      <span className="text-muted-foreground/50 italic">NULL</span>
-                    ) : (
-                      String(cell)
-                    )}
+            {table.getRowModel().rows.map((row, i) => (
+              <tr key={row.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
+                <td className="px-3 py-2 text-muted-foreground text-xs font-mono border-r border-border/30 bg-card/30">
+                  {(table.getState().pagination.pageIndex * table.getState().pagination.pageSize) + i + 1}
+                </td>
+                {row.getVisibleCells().map(cell => (
+                  <td key={cell.id} className="px-4 py-2 text-foreground whitespace-nowrap font-mono text-xs max-w-[300px] truncate">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
               </tr>

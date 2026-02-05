@@ -28,7 +28,7 @@ import {
   Twitter,
   Heart,
   Shield,
-  Clock,
+  Clock as ClockIcon,
   Brain,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -37,6 +37,8 @@ import { useWorkspaceStore } from "@/lib/workspace-store"
 
 
 import { FadeIn } from "@/components/fade-in"
+import { Starfield } from "@/components/starfield"
+import { Clock } from "@/components/clock"
 
 // Animated typing effect component
 function TypeWriter({ texts, className }: { texts: string[]; className?: string }) {
@@ -158,7 +160,7 @@ function AnimatedCodeBlock() {
   return (
     <div className="relative">
       {/* Glow effect */}
-      <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-blue-500/20 to-primary/20 rounded-2xl blur-xl opacity-50" />
+      <div className="absolute -inset-4 bg-linear-to-r from-primary/20 via-blue-500/20 to-primary/20 rounded-2xl blur-xl opacity-50" />
 
       <div className="relative bg-[#0d1117] rounded-xl border border-white/10 overflow-hidden shadow-2xl">
         {/* Window controls */}
@@ -213,14 +215,14 @@ function GlassCard({
 }) {
   return (
     <div
-      className="group relative p-6 rounded-2xl backdrop-blur-xl bg-white/[0.03] border border-white/[0.08] hover:border-primary/30 transition-all duration-500 hover:shadow-lg hover:shadow-primary/5"
+      className="group relative p-6 rounded-2xl backdrop-blur-xl bg-white/3 border border-white/8 hover:border-primary/30 transition-all duration-500 hover:shadow-lg hover:shadow-primary/5"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Hover glow */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+        <div className="w-14 h-14 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
           <Icon className="h-7 w-7 text-primary" />
         </div>
         <h3 className="font-semibold text-lg text-foreground mb-2">{title}</h3>
@@ -244,8 +246,8 @@ function StatCard({
 }) {
   return (
     <div className="relative group">
-      <div className={`absolute inset-0 bg-gradient-to-br ${color} rounded-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
-      <div className="relative p-6 rounded-2xl border border-white/[0.08] backdrop-blur-sm">
+      <div className={`absolute inset-0 bg-linear-to-br ${color} rounded-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
+      <div className="relative p-6 rounded-2xl border border-white/8 backdrop-blur-sm">
         <Icon className="w-8 h-8 text-muted-foreground mb-4" />
         <p className="text-4xl font-bold text-foreground">
           <AnimatedCounter target={value} />
@@ -263,7 +265,7 @@ function TopicPill({ children, active = false }: { children: React.ReactNode; ac
     <span
       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${active
         ? "bg-primary text-primary-foreground"
-        : "bg-white/[0.03] text-muted-foreground border border-white/[0.08] hover:border-primary/30"
+        : "bg-white/3 text-muted-foreground border border-white/8 hover:border-primary/30"
         }`}
     >
       {children}
@@ -284,15 +286,15 @@ function TestimonialCard({
   avatar: string
 }) {
   return (
-    <div className="group relative p-6 rounded-2xl backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] hover:border-primary/30 transition-all duration-500">
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="group relative p-6 rounded-2xl backdrop-blur-xl bg-white/2 border border-white/8 hover:border-primary/30 transition-all duration-500">
+      <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative">
         <Quote className="h-8 w-8 text-primary/30 mb-4" />
         <p className="text-foreground/90 leading-relaxed mb-6">{quote}</p>
 
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center text-primary-foreground font-semibold">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-emerald-500 flex items-center justify-center text-primary-foreground font-semibold">
             {avatar}
           </div>
           <div>
@@ -307,6 +309,18 @@ function TestimonialCard({
 
 export default function HomePage() {
   const progress = useWorkspaceStore((state) => state.progress)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      })
+    }
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [])
 
   const stats = useMemo(() => {
     const solved = Object.values(progress).filter((p) => p.solved).length
@@ -328,44 +342,59 @@ export default function HomePage() {
         {/* Background effects */}
         <div className="absolute inset-0">
           {/* Main gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,200,180,0.15),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,200,180,0.05),transparent)]" />
 
           {/* Grid pattern */}
           <div
-            className="absolute inset-0 opacity-[0.02]"
+            className="absolute inset-0 opacity-[0.03]"
             style={{
-              backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-              backgroundSize: "100px 100px",
+              backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+              backgroundSize: "80px 80px",
             }}
           />
 
-          {/* Gradient orbs */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[128px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: "1s" }} />
-        </div>
+          <Starfield />
 
-        <FloatingParticles />
+          {/* Parallax glows */}
+          <div
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[128px]"
+            style={{
+              transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
+              transition: "transform 0.2s ease-out"
+            }}
+          />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[128px]"
+            style={{
+              transform: `translate(${-mousePosition.x}px, ${-mousePosition.y}px)`,
+              transition: "transform 0.2s ease-out"
+            }}
+          />
+        </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center">
           {/* Left content */}
           <div className="text-center lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-              </span>
-              <span className="text-sm text-muted-foreground">
-                <span className="text-primary font-semibold">{stats.total}</span> Problems Available
-              </span>
+            {/* Badge & Clock */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 lg:justify-start justify-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/3 border border-white/8 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  <span className="text-primary font-semibold">{stats.total}</span> Problems Available
+                </span>
+              </div>
+              <Clock />
             </div>
 
             {/* Main heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.2] lg:leading-[1.1]">
               <span className="text-foreground">Master</span>
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-400 to-teal-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-emerald-400 to-teal-400">
                 <TypeWriter texts={["SQL Queries", "Data Analysis", "Database Skills", "JOIN Operations"]} />
               </span>
             </h1>
@@ -391,7 +420,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="gap-2 h-14 text-base bg-transparent border-white/10 hover:bg-white/[0.03] hover:border-white/20"
+                  className="gap-2 h-14 text-base bg-transparent border-white/10 hover:bg-white/3 hover:border-white/20"
                 >
                   <Terminal className="h-5 w-5" />
                   Try First Problem
@@ -442,7 +471,7 @@ export default function HomePage() {
 
       {/* Features Section - Enhanced with 6 cards */}
       <section className="relative py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary/2 to-transparent" />
 
         <div className="relative max-w-7xl mx-auto px-6">
           <FadeIn>
@@ -450,7 +479,7 @@ export default function HomePage() {
               <span className="text-primary font-medium text-sm tracking-wide uppercase">Features</span>
               <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground">
                 Everything you need to
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> learn SQL</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> learn SQL</span>
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
                 A complete platform designed for developers who want to master database queries
@@ -501,7 +530,7 @@ export default function HomePage() {
 
       {/* AI Features Showcase Section */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-blue-500/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px]" />
 
         <div className="relative max-w-7xl mx-auto px-6">
@@ -516,7 +545,7 @@ export default function HomePage() {
 
                 <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
                   Get unstuck with
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> AI hints</span>
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> AI hints</span>
                 </h2>
 
                 <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
@@ -525,8 +554,8 @@ export default function HomePage() {
                 </p>
 
                 <div className="mt-8 space-y-4">
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-primary/20 transition-colors duration-300">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/2 border border-white/5 hover:border-primary/20 transition-colors duration-300">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                       <Brain className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -535,8 +564,8 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-amber-500/20 transition-colors duration-300">
-                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/2 border border-white/5 hover:border-amber-500/20 transition-colors duration-300">
+                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
                       <Lightbulb className="h-5 w-5 text-amber-400" />
                     </div>
                     <div>
@@ -545,8 +574,8 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-blue-500/20 transition-colors duration-300">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/2 border border-white/5 hover:border-blue-500/20 transition-colors duration-300">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
                       <Shield className="h-5 w-5 text-blue-400" />
                     </div>
                     <div>
@@ -561,7 +590,7 @@ export default function HomePage() {
             {/* Right - Visual Demo */}
             <FadeIn delay={200} direction="left">
               <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-blue-500/10 to-primary/20 rounded-3xl blur-2xl opacity-50" />
+                <div className="absolute -inset-4 bg-linear-to-r from-primary/20 via-blue-500/10 to-primary/20 rounded-3xl blur-2xl opacity-50" />
                 <div className="relative bg-[#0d1117] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
                   <div className="flex items-center gap-2 px-4 py-3 bg-[#161b22] border-b border-white/5">
                     <div className="flex gap-2">
@@ -573,10 +602,10 @@ export default function HomePage() {
                   </div>
                   <div className="p-6 space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                         <Sparkles className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="flex-1 p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+                      <div className="flex-1 p-4 rounded-xl bg-white/3 border border-white/8">
                         <p className="text-sm text-foreground">💡 <strong>Hint:</strong> You're close! Try using a <code className="px-1.5 py-0.5 bg-primary/20 rounded text-primary text-xs">LEFT JOIN</code> instead of <code className="px-1.5 py-0.5 bg-primary/20 rounded text-primary text-xs">INNER JOIN</code> to include employees without departments.</p>
                         <p className="text-xs text-muted-foreground mt-3">📝 This will preserve all rows from the employees table, even when there's no match.</p>
                       </div>
@@ -591,7 +620,7 @@ export default function HomePage() {
 
       {/* How It Works Section */}
       <section className="py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/[0.02] to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-blue-500/2 to-transparent" />
 
         <div className="relative max-w-7xl mx-auto px-6">
           <FadeIn>
@@ -599,7 +628,7 @@ export default function HomePage() {
               <span className="text-primary font-medium text-sm tracking-wide uppercase">How It Works</span>
               <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground">
                 Three steps to
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> SQL mastery</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> SQL mastery</span>
               </h2>
             </div>
           </FadeIn>
@@ -608,9 +637,9 @@ export default function HomePage() {
             {/* Step 1 */}
             <FadeIn delay={0} direction="up" className="h-full">
               <div className="relative group h-full">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center h-full hover:border-primary/30 transition-colors duration-300">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-2xl border border-white/8 bg-white/2 text-center h-full hover:border-primary/30 transition-colors duration-300">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Terminal className="h-8 w-8 text-primary" />
                   </div>
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center shadow-lg shadow-primary/25">1</div>
@@ -620,16 +649,16 @@ export default function HomePage() {
                   </p>
                 </div>
                 {/* Connector line */}
-                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-primary/50 to-transparent" />
+                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-linear-to-r from-primary/50 to-transparent" />
               </div>
             </FadeIn>
 
             {/* Step 2 */}
             <FadeIn delay={200} direction="up" className="h-full">
               <div className="relative group h-full">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center h-full hover:border-blue-500/30 transition-colors duration-300">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 to-transparent rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-2xl border border-white/8 bg-white/2 text-center h-full hover:border-blue-500/30 transition-colors duration-300">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-linear-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Play className="h-8 w-8 text-blue-400" />
                   </div>
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-blue-500 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-blue-500/25">2</div>
@@ -639,16 +668,16 @@ export default function HomePage() {
                   </p>
                 </div>
                 {/* Connector line */}
-                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-blue-500/50 to-transparent" />
+                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-linear-to-r from-blue-500/50 to-transparent" />
               </div>
             </FadeIn>
 
             {/* Step 3 */}
             <FadeIn delay={400} direction="up" className="h-full">
               <div className="relative group h-full">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center h-full hover:border-emerald-500/30 transition-colors duration-300">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 to-transparent rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative p-8 rounded-2xl border border-white/8 bg-white/2 text-center h-full hover:border-emerald-500/30 transition-colors duration-300">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-linear-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Rocket className="h-8 w-8 text-emerald-400" />
                   </div>
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/25">3</div>
@@ -677,7 +706,7 @@ export default function HomePage() {
 
       {/* Topics Section */}
       <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/[0.02] to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-blue-500/2 to-transparent" />
 
         <FadeIn className="w-full"><div className="relative max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -685,7 +714,7 @@ export default function HomePage() {
               <span className="text-primary font-medium text-sm tracking-wide uppercase">SQL Topics</span>
               <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground">
                 From basics to
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> advanced</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> advanced</span>
               </h2>
               <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
                 Progress through carefully structured problems covering all essential SQL concepts.
@@ -745,7 +774,7 @@ export default function HomePage() {
             <span className="text-primary font-medium text-sm tracking-wide uppercase">Datasets</span>
             <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground">
               Real-world
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> Indian context</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> Indian context</span>
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
               Practice with realistic data featuring Indian names, businesses, and scenarios
@@ -807,14 +836,14 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary/2 to-transparent" />
 
         <FadeIn className="w-full"><div className="relative max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-primary font-medium text-sm tracking-wide uppercase">What People Say</span>
             <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground">
               Loved by
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> developers</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> developers</span>
             </h2>
           </div>
 
@@ -846,18 +875,18 @@ export default function HomePage() {
         <FadeIn className="w-full"><div className="max-w-5xl mx-auto px-6">
           <div className="relative overflow-hidden rounded-3xl">
             {/* Background effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-blue-500/20" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-background to-blue-500/20" />
             <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px]" />
 
-            <div className="relative border border-white/[0.08] rounded-3xl p-12 sm:p-16 text-center backdrop-blur-sm">
+            <div className="relative border border-white/8 rounded-3xl p-12 sm:p-16 text-center backdrop-blur-sm">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-8">
                 <Command className="w-8 h-8 text-primary" />
               </div>
 
               <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
                 Ready to start your
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400"> SQL journey?</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-400"> SQL journey?</span>
               </h2>
 
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -875,9 +904,9 @@ export default function HomePage() {
 
               {/* Keyboard shortcut hint */}
               <div className="mt-8 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <kbd className="px-2 py-1 rounded bg-white/[0.05] border border-white/10 font-mono text-xs">Ctrl</kbd>
+                <kbd className="px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-xs">Ctrl</kbd>
                 <span>+</span>
-                <kbd className="px-2 py-1 rounded bg-white/[0.05] border border-white/10 font-mono text-xs">Enter</kbd>
+                <kbd className="px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-xs">Enter</kbd>
                 <span>to run queries</span>
               </div>
             </div>
@@ -886,13 +915,13 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="border-t border-white/[0.05] py-16">
+      <footer className="border-t border-white/5 py-16">
         <FadeIn className="w-full"><div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary to-emerald-500 flex items-center justify-center">
                   <Database className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
@@ -961,7 +990,7 @@ export default function HomePage() {
           </div>
 
           {/* Bottom bar */}
-          <div className="pt-8 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               Made with <Heart className="h-4 w-4 text-red-500" /> for SQL learners
             </p>
@@ -984,6 +1013,10 @@ export default function HomePage() {
           10% { opacity: 1; }
           90% { opacity: 1; }
           100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
         .animate-float {
           animation: float linear infinite;
@@ -1030,10 +1063,10 @@ function DifficultyRow({
   const c = colors[color]
 
   return (
-    <div className={`p-5 rounded-xl border ${c.border} ${c.bg} backdrop-blur-sm`}>
+    <div className={`p-5 rounded-xl border ${c.border} ${c.bg} backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-${color}-500/10`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text} border ${c.border}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text} border ${c.border} shadow-sm`}>
             {difficulty}
           </span>
           <span className="text-2xl font-bold text-foreground">{count}</span>
@@ -1042,8 +1075,13 @@ function DifficultyRow({
         <span className={`text-sm font-medium ${c.text}`}>{percentage}%</span>
       </div>
       <p className="text-sm text-muted-foreground mb-3">{description}</p>
-      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <div className={`h-full ${c.bar} rounded-full transition-all duration-1000`} style={{ width: `${percentage}%` }} />
+      <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+        <div
+          className={`h-full ${c.bar} rounded-full transition-all duration-1000 relative overflow-hidden`}
+          style={{ width: `${percentage}%` }}
+        >
+          <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)' }} />
+        </div>
       </div>
     </div>
   )
@@ -1061,19 +1099,21 @@ function DatasetCard({
   color: string
 }) {
   return (
-    <div className="group relative p-5 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300 hover:border-white/[0.12]">
-      <div className={`absolute inset-0 bg-gradient-to-br ${color} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+    <div className="group relative p-5 rounded-xl border border-white/8 bg-white/2 hover:bg-white/4 transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1">
+      <div className={`absolute inset-0 bg-linear-to-br ${color} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
       <div className="relative">
         <div className="flex items-center gap-3 mb-4">
-          <Icon className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">{title}</h3>
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{title}</h3>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {tables.map((table) => (
             <span
               key={table}
-              className="px-2 py-1 text-xs bg-white/[0.03] text-muted-foreground rounded-md font-mono border border-white/[0.05]"
+              className="px-2 py-1 text-xs bg-white/3 text-muted-foreground rounded-md font-mono border border-white/5 group-hover:border-white/10 transition-colors"
             >
               {table}
             </span>

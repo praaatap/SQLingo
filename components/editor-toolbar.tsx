@@ -33,12 +33,13 @@ export function EditorToolbar({
   isDbLoading,
   schemaOpen,
   onToggleSchema,
+  onFormat,
   questionTitle = "",
   questionDescription = "",
   schema = [],
   currentQuery = "",
   errorMessage,
-}: EditorToolbarProps) {
+}: EditorToolbarProps & { onFormat?: () => void }) {
   return (
     <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/80 backdrop-blur-sm">
       <div className="flex items-center gap-2">
@@ -66,14 +67,32 @@ export function EditorToolbar({
           onClick={onRun}
           disabled={isRunning || isDbLoading}
           size="sm"
-          className={cn("gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm")}
+          className={cn(
+            "gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20 border-0 transition-all active:scale-95"
+          )}
         >
-          {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+          {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
           Run
-          <kbd className="hidden sm:inline-flex ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-primary-foreground/20 rounded">
-            Ctrl+Enter
-          </kbd>
+          <div className="hidden sm:flex items-center gap-1 ml-1 pl-2 border-l border-white/20">
+            <kbd className="text-[10px] font-mono">Ctrl</kbd>
+            <span className="text-[10px]">+</span>
+            <kbd className="text-[10px] font-mono">Enter</kbd>
+          </div>
         </Button>
+
+        {/* Format Button */}
+        {onFormat && (
+          <Button
+            onClick={onFormat}
+            size="sm"
+            variant="ghost"
+            className="gap-2 text-muted-foreground hover:text-foreground"
+            title="Format SQL query"
+          >
+            <span className="text-xs font-mono">{"{}"}</span>
+            <span className="hidden sm:inline">Format</span>
+          </Button>
+        )}
 
         {/* Submit Button */}
         <Button
@@ -81,7 +100,7 @@ export function EditorToolbar({
           disabled={isSubmitting || isDbLoading}
           size="sm"
           variant="secondary"
-          className="gap-2 shadow-sm"
+          className="gap-2 shadow-sm border border-transparent bg-secondary hover:bg-secondary/80 transition-all data-[state=success]:bg-green-500 data-[state=success]:text-white"
         >
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           Submit

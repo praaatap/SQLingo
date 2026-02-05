@@ -61,7 +61,7 @@ export function SchemaExplorer({ schema, onTableClick, isLoading }: SchemaExplor
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-gradient-to-b from-card to-transparent">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-linear-to-b from-card to-transparent">
         <Database className="h-4 w-4 text-primary" />
         <span className="text-sm font-semibold text-foreground">Schema Explorer</span>
         <span className="ml-auto text-xs text-muted-foreground">{schema.length} tables</span>
@@ -80,7 +80,7 @@ export function SchemaExplorer({ schema, onTableClick, isLoading }: SchemaExplor
             <div
               className={cn(
                 "flex items-center gap-2 w-full px-2 py-2 rounded-lg text-left",
-                "hover:bg-secondary/50 transition-colors group cursor-pointer"
+                "hover:bg-secondary/80 transition-all duration-200 group cursor-pointer border border-transparent hover:border-border/50"
               )}
             >
               <button
