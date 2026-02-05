@@ -74,10 +74,12 @@ Follow these steps to run the project locally:
 
 ## 📸 Screenshots
 
-| Landing Page | Workspace |
-|:---:|:---:|
-| *Beautiful animated landing page* | *Interactive SQL editor with results* |
-| ![Landing](public/placeholder.svg) | ![Workspace](public/icon.svg) |
+| Screenshot |
+|:---:|
+| *Beautiful animated landing page* |
+| <img width="700" alt="Landing Page Screenshot" src="https://github.com/user-attachments/assets/c70ef072-8e98-4314-a77f-90061f2a44bb" /> |
+| *Interactive SQL editor with results* |
+| <img width="700" alt="Workspace Screenshot" src="https://github.com/user-attachments/assets/da95d50d-73b5-4046-b091-56e7ae07fd52" /> |
 
 *(Note: Add actual screenshots to the `public` folder and update links)*
 
