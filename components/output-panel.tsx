@@ -202,93 +202,95 @@ function ResultsTable({ result, rowCount }: { result: QueryResult; rowCount: num
 
   return (
     <div className="flex flex-col h-full bg-card">
-      <div className="flex items-center justify-between p-3 border-b border-border bg-card">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Table2 className="h-4 w-4" />
-          <span>{rowCount} row{rowCount !== 1 ? "s" : ""} returned</span>
+      <div className="flex flex-col sm:flex-row items-center justify-between p-2 sm:p-3 border-b border-border bg-card gap-2 sm:gap-0">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground w-full sm:w-auto justify-between sm:justify-start">
+          <div className="flex items-center gap-2">
+            <Table2 className="h-4 w-4" />
+            <span>{rowCount} row{rowCount !== 1 ? "s" : ""} returned</span>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground sm:mr-2 sm:ml-auto">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </div>
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center text-xs text-muted-foreground mr-2">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </button>
-            <button
-              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-            <button
-              className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </button>
-          </div>
+        <div className="flex items-center gap-1 w-full sm:w-auto justify-center sm:justify-end">
+          <button
+            className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none flex justify-center"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </button>
+          <button
+            className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none flex justify-center"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none flex justify-center"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <button
+            className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none flex justify-center"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
       <div className="flex-1 overflow-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead className="sticky top-0 bg-secondary/80 backdrop-blur-sm z-10 shadow-sm">
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {/* Row Number Header */}
-                <th className="w-12 px-3 py-2 text-left font-medium text-muted-foreground border-b border-border text-xs bg-secondary/80">#</th>
+        <div className="min-w-full inline-block align-middle">
+          <table className="w-full text-sm border-collapse">
+            <thead className="sticky top-0 bg-secondary/80 backdrop-blur-sm z-10 shadow-sm">
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {/* Row Number Header */}
+                  <th className="w-12 px-3 py-2 text-left font-medium text-muted-foreground border-b border-border text-xs bg-secondary/80">#</th>
 
-                {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-2 text-left font-medium text-foreground border-b border-border whitespace-nowrap cursor-pointer select-none hover:bg-secondary transition-colors group"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <div className="flex items-center gap-2">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      <span className="text-muted-foreground/50 group-hover:text-foreground transition-colors">
-                        {{
-                          asc: <ChevronUp className="h-3 w-3" />,
-                          desc: <ChevronDown className="h-3 w-3" />,
-                        }[header.column.getIsSorted() as string] ?? <ChevronsUpDown className="h-3 w-3 opacity-0 group-hover:opacity-50" />}
-                      </span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row, i) => (
-              <tr key={row.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
-                <td className="px-3 py-2 text-muted-foreground text-xs font-mono border-r border-border/30 bg-card/30">
-                  {(table.getState().pagination.pageIndex * table.getState().pagination.pageSize) + i + 1}
-                </td>
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-4 py-2 text-foreground whitespace-nowrap font-mono text-xs max-w-[300px] truncate">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {headerGroup.headers.map(header => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-2 text-left font-medium text-foreground border-b border-border whitespace-nowrap cursor-pointer select-none hover:bg-secondary transition-colors group"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div className="flex items-center gap-2">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        <span className="text-muted-foreground/50 group-hover:text-foreground transition-colors">
+                          {{
+                            asc: <ChevronUp className="h-3 w-3" />,
+                            desc: <ChevronDown className="h-3 w-3" />,
+                          }[header.column.getIsSorted() as string] ?? <ChevronsUpDown className="h-3 w-3 opacity-0 group-hover:opacity-50" />}
+                        </span>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row, i) => (
+                <tr key={row.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
+                  <td className="px-3 py-2 text-muted-foreground text-xs font-mono border-r border-border/30 bg-card/30">
+                    {(table.getState().pagination.pageIndex * table.getState().pagination.pageSize) + i + 1}
                   </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id} className="px-4 py-2 text-foreground whitespace-nowrap font-mono text-xs max-w-[300px] truncate">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

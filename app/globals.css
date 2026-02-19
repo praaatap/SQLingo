@@ -179,3 +179,12 @@
 ::selection {
   background: oklch(0.75 0.18 160 / 0.3);
 }
+
+/* Safe area utilities */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}

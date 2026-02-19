@@ -145,6 +145,7 @@ export const SqlEditor = forwardRef<SqlEditorRef, SqlEditorProps>(({ value, onCh
           scrollbar: {
             verticalScrollbarSize: 10,
             horizontalScrollbarSize: 10,
+            alwaysConsumeMouseWheel: false,
           },
           // Mobile improvements
           mouseWheelZoom: true,

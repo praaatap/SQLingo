@@ -232,9 +232,9 @@ export function Workspace({ question }: WorkspaceProps) {
 
   if (isMobile) {
     return (
-      <div className="flex flex-col h-screen w-full bg-background overflow-hidden">
+      <div className="flex flex-col h-dvh w-full bg-background overflow-hidden">
         {/* Mobile Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card shrink-0">
           <div className="flex items-center gap-2 max-w-[70%]">
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
               <Home className="h-4 w-4" />
@@ -244,15 +244,13 @@ export function Workspace({ question }: WorkspaceProps) {
               #{question.id} {question.title}
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <DifficultyBadge difficulty={question.difficulty} />
-          </div>
+          <DifficultyBadge difficulty={question.difficulty} />
         </div>
 
         {/* Mobile Content Area */}
-        <div className="flex-1 overflow-hidden relative">
+        <div className="flex-1 relative overflow-hidden">
           {mobileView === "problem" && (
-            <div className="absolute inset-0 z-10 bg-background overflow-y-auto">
+            <div className="absolute inset-0 z-10 bg-background overflow-y-auto pb-safe">
               <QuestionPanel
                 question={question}
                 hintsUnlocked={hintsUnlocked}
@@ -264,7 +262,7 @@ export function Workspace({ question }: WorkspaceProps) {
           )}
 
           {mobileView === "schema" && (
-            <div className="absolute inset-0 z-10 bg-background overflow-y-auto">
+            <div className="absolute inset-0 z-10 bg-background overflow-y-auto pb-safe">
               <SchemaExplorer schema={schema} onTableClick={handleTableClick} isLoading={dbLoading} />
             </div>
           )}
@@ -287,33 +285,37 @@ export function Workspace({ question }: WorkspaceProps) {
               currentQuery={queryText}
               errorMessage={executionResult?.error || undefined}
             />
-            <div className="flex-1 relative">
-              <SqlEditor
-                ref={editorRef}
-                value={queryText}
-                onChange={setQueryText}
-                onRun={handleRun}
-                schema={schema}
-              />
-            </div>
-            {/* Mobile bottom panel for output */}
-            <div className="h-[40%] border-t border-border">
-              <OutputPanel
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                result={executionResult?.result || null}
-                error={executionResult?.error || null}
-                executionTime={executionResult?.executionTime || 0}
-                rowCount={executionResult?.rowCount || 0}
-                submitStatus={submitStatus}
-                validationResult={validationResult}
-              />
+
+            {/* Split Editor and Output for Mobile Editor View */}
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 relative min-h-0">
+                <SqlEditor
+                  ref={editorRef}
+                  value={queryText}
+                  onChange={setQueryText}
+                  onRun={handleRun}
+                  schema={schema}
+                />
+              </div>
+              {/* Mobile bottom panel for output */}
+              <div className="h-[40%] border-t border-border shrink-0">
+                <OutputPanel
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  result={executionResult?.result || null}
+                  error={executionResult?.error || null}
+                  executionTime={executionResult?.executionTime || 0}
+                  rowCount={executionResult?.rowCount || 0}
+                  submitStatus={submitStatus}
+                  validationResult={validationResult}
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Navigation Bar */}
-        <div className="flex items-center justify-around border-t border-border bg-card p-1 pb-safe">
+        <div className="flex items-center justify-around border-t border-border bg-card p-1 pb-safe shrink-0">
           <Button
             variant={mobileView === "problem" ? "secondary" : "ghost"}
             className="flex flex-col items-center gap-1 h-auto py-2 px-1 flex-1 rounded-none data-[state=active]:border-t-2 border-primary"

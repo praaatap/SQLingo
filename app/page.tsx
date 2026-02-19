@@ -338,7 +338,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center">
+      <section className="relative min-h-dvh flex items-center justify-center overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0">
           {/* Main gradient */}
@@ -356,16 +356,16 @@ export default function HomePage() {
 
           <Starfield />
 
-          {/* Parallax glows */}
+          {/* Parallax glows - reduced intensity on mobile */}
           <div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[128px]"
+            className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-primary/5 rounded-full blur-[128px]"
             style={{
               transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
               transition: "transform 0.2s ease-out"
             }}
           />
           <div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[128px]"
+            className="absolute bottom-1/4 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-blue-500/5 rounded-full blur-[128px]"
             style={{
               transform: `translate(${-mousePosition.x}px, ${-mousePosition.y}px)`,
               transition: "transform 0.2s ease-out"
@@ -373,7 +373,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32 sm:py-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left content */}
           <div className="text-center lg:text-left">
             {/* Badge & Clock */}
@@ -387,11 +387,13 @@ export default function HomePage() {
                   <span className="text-primary font-semibold">{stats.total}</span> Problems Available
                 </span>
               </div>
-              <Clock />
+              <div className="hidden sm:block">
+                <Clock />
+              </div>
             </div>
 
             {/* Main heading */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.2] lg:leading-[1.1]">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.15] lg:leading-[1.1]">
               <span className="text-foreground">Master</span>
               <br />
               <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-emerald-400 to-teal-400">
@@ -399,28 +401,28 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+            <p className="mt-6 text-base sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Practice SQL in your browser with instant feedback. Real-world datasets with Indian context.
               From basics to advanced - no setup required.
             </p>
 
             {/* CTA buttons */}
-            <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
-              <Link href="/problems">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
+              <Link href="/problems" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="gap-2 px-8 h-14 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
+                  className="w-full sm:w-auto gap-2 px-8 h-14 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
                 >
                   <Play className="h-5 w-5" />
                   Start Practicing
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/problems/1">
+              <Link href="/problems/1" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="lg"
-                  className="gap-2 h-14 text-base bg-transparent border-white/10 hover:bg-white/3 hover:border-white/20"
+                  className="w-full sm:w-auto gap-2 h-14 text-base bg-transparent border-white/10 hover:bg-white/3 hover:border-white/20"
                 >
                   <Terminal className="h-5 w-5" />
                   Try First Problem
@@ -429,25 +431,25 @@ export default function HomePage() {
             </div>
 
             {/* Quick stats bar */}
-            <div className="mt-12 flex items-center gap-8 justify-center lg:justify-start">
-              <div className="text-center">
+            <div className="mt-12 flex flex-wrap items-center gap-4 sm:gap-8 justify-center lg:justify-start bg-white/2 sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-white/5 sm:border-none">
+              <div className="text-center min-w-[60px]">
                 <p className="text-2xl font-bold text-foreground">{stats.easy}</p>
                 <p className="text-xs text-emerald-400 font-medium">Easy</p>
               </div>
               <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
+              <div className="text-center min-w-[60px]">
                 <p className="text-2xl font-bold text-foreground">{stats.medium}</p>
                 <p className="text-xs text-amber-400 font-medium">Medium</p>
               </div>
               <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
+              <div className="text-center min-w-[60px]">
                 <p className="text-2xl font-bold text-foreground">{stats.hard}</p>
                 <p className="text-xs text-red-400 font-medium">Hard</p>
               </div>
               {stats.solved > 0 && (
                 <>
                   <div className="w-px h-8 bg-white/10" />
-                  <div className="text-center">
+                  <div className="text-center min-w-[60px]">
                     <p className="text-2xl font-bold text-primary">{stats.solved}</p>
                     <p className="text-xs text-primary font-medium">Solved</p>
                   </div>
@@ -462,8 +464,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+        {/* Scroll indicator - Hide on small mobile to save space */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 animate-bounce hidden sm:flex">
           <span className="text-xs text-muted-foreground">Scroll to explore</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
         </div>
