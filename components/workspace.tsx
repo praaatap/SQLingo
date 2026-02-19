@@ -236,7 +236,11 @@ export function Workspace({ question }: WorkspaceProps) {
         {/* Mobile Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card shrink-0">
           <div className="flex items-center gap-2 max-w-[70%]">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => localStorage.removeItem("sqlingo-last-path")}
+            >
               <Home className="h-4 w-4" />
             </Link>
             <span className="text-muted-foreground">/</span>
@@ -341,7 +345,7 @@ export function Workspace({ question }: WorkspaceProps) {
             <span className="text-[10px]">Schema</span>
           </Button>
         </div>
-      </div>
+      </div >
     )
   }
 
