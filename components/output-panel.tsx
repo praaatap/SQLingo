@@ -138,8 +138,6 @@ import {
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 
 function ResultsTab({ result, rowCount }: { result: QueryResult | null; rowCount: number }) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-
   if (!result) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
@@ -163,6 +161,12 @@ function ResultsTab({ result, rowCount }: { result: QueryResult | null; rowCount
       </div>
     )
   }
+
+  return <ResultsTable result={result} rowCount={rowCount} />
+}
+
+function ResultsTable({ result, rowCount }: { result: QueryResult; rowCount: number }) {
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   // Memoize data and columns
   const columns = React.useMemo(() => {
